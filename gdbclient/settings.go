@@ -14,9 +14,10 @@
 package gdbclient
 
 import (
-	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/internal/pool"
 	"strconv"
 	"time"
+
+	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/internal/pool"
 )
 
 type Settings struct {
@@ -45,7 +46,7 @@ type Settings struct {
 	// Default is 5 second
 	WriteTimeout time.Duration
 	// Amount of time client waits connection io read before returning an error.
-	// Default is the same with WriteTimeout
+	// Default is 31 second
 	ReadTimeout time.Duration
 	// Interval of time to check connection health status in pool, new connection will be
 	// created if someone broken in pool
@@ -82,7 +83,7 @@ func (s *Settings) init() {
 		s.WriteTimeout = 5 * time.Second
 	}
 	if s.ReadTimeout == 0 {
-		s.ReadTimeout = s.WriteTimeout
+		s.ReadTimeout = 31 * time.Second
 	}
 	if s.PoolTimeout == 0 {
 		s.PoolTimeout = s.ReadTimeout + 1
