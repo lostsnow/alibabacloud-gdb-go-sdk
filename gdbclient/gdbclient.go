@@ -17,14 +17,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+	"unsafe"
+
 	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/graph"
 	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/internal"
 	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/internal/graphsonv3"
 	"github.com/aliyun/alibabacloud-gdb-go-sdk/gdbclient/internal/pool"
 	"go.uber.org/zap"
-	"strconv"
-	"time"
-	"unsafe"
 )
 
 func SetLogger(logger *zap.Logger) {
@@ -117,7 +118,16 @@ func (c *baseClient) SubmitScriptOptions(gremlin string, options *graph.RequestO
 	if future, err := c.SubmitScriptOptionsAsync(gremlin, options); err != nil {
 		return nil, err
 	} else {
-		return future.GetResults()
+		timeout_ms := options.GetTimeout()
+		if timeout_ms == 0 {
+			// default server timeout is 30s
+			timeout_ms = 30000
+		}
+		if result, timeout, err := future.GetResultsOrTimeout(time.Millisecond * time.Duration(timeout_ms+100)); timeout {
+			return nil, errors.New("request timeout")
+		} else {
+			return result, err
+		}
 	}
 }
 

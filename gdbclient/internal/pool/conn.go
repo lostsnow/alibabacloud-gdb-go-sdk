@@ -240,7 +240,7 @@ func (cn *ConnWebSocket) readResponse() {
 		var response *graphsonv3.Response
 
 		// read response as block, exit by io close signal
-		if err = cn.netConn.SetReadDeadline(cn.deadline(cn.opt.ReadTimeout)); err == nil {
+		if err = cn.netConn.SetReadDeadline(cn.deadline(0)); err == nil {
 			if _, msg, err = cn.netConn.ReadMessage(); err == nil {
 				response, err = graphsonv3.ReadResponse(msg)
 			}
